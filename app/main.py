@@ -9,7 +9,8 @@ app = FastAPI(title="Lumen Bank API", version="1.0")
 # Import auth router (must exist)
 try:
     auth_mod = importlib.import_module("app.routers.auth")
-    app.include_router(auth_mod.router)
+    # Include auth router under the "/auth" prefix so endpoints are /auth/register and /auth/login
+    app.include_router(auth_mod.router, prefix="/auth", tags=["auth"])
 except ModuleNotFoundError:
     logging.warning("Auth router (app.routers.auth) not found — auth endpoints won't be available.")
 
@@ -24,6 +25,7 @@ _account_router_candidates = [
 for _mod_name in _account_router_candidates:
     try:
         mod = importlib.import_module(_mod_name)
+        # accounts router defines full paths (e.g. "/accounts"), so include without extra prefix
         app.include_router(mod.router)
         break
     except ModuleNotFoundError:
